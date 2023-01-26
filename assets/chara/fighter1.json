@@ -1,0 +1,6 @@
+{
+    "speed"  : 5,
+    "jump"   : 6,
+    "gravity": 1,
+    "health" : 100
+}
