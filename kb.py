@@ -85,6 +85,8 @@ class keyboard:
                 o.vel_y += o.gravity                
                 o.dy += o.vel_y
 
+
+
     def set_move_AD(self):
         inputs = {
             pg.K_a: move_left,

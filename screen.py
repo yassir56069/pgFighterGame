@@ -40,7 +40,7 @@ class screen:
 
     def draw_healthBar(self, health, x ,y):
         ratio = health / 100
-        pg.draw.rect(self.SCREEN, WHITE, (x + 4 ,y + 4, 408, 38))
+        pg.draw.rect(self.SCREEN, WHITE, (x - 2,y - 3, 404, 36))
         pg.draw.rect(self.SCREEN, RED, (x,y, 400, 30))
         pg.draw.rect(self.SCREEN, YELLOW, (x,y, 400 * ratio, 30))
 

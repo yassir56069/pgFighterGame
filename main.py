@@ -23,7 +23,8 @@ def run_game(screen:screen, running = True):
             kb.borderEx(screen, *fighter.getFighterList())
             kb.jumpEx(*fighter.getFighterList())
 
-
+            f1.flipEx(f2)
+            f2.flipEx(f1)
 
             for o in obj:
                 if o.show == True:
@@ -43,8 +44,11 @@ def run_game(screen:screen, running = True):
 
     # objects
     background  = object('assets//images//background//background.jpg')
-    f1          = fighter(config='assets//chara//fighter1.json', coord=(200,310))
-    f2          = fighter(config='assets//chara//fighter2.json', coord=(700,310))
+    f1          = fighter(config='assets//chara//fighter1.json', img='assets\images\warrior\Sprites\warrior.png', coord=(200,310))
+    f2          = fighter(config='assets//chara//fighter2.json', img='assets\images\wizard\Sprites\wizard.png', coord=(700,310))
+    
+    f1.GenSteps(10,8,1,7,7,3,7)
+    f2.GenSteps(8,8,1,8,8,3,7)
 
 
     loop(*object.getObjList())     # loop wrapper

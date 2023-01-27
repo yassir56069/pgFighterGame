@@ -9,7 +9,7 @@ class fighter(object):
 
     _fighterList = []
 
-    def __init__(self, config="", img="",  show:bool = True, coord:tuple = (0,0), size= (80,180) ) -> None:
+    def __init__(self, config="", img="", show:bool = True, coord:tuple = (0,0), size= (80,180) ) -> None:
         """the fighter class represents the playable fighter character pygame objects
 
         Args:
@@ -23,29 +23,39 @@ class fighter(object):
         self.x = coord[0]
         self.y = coord[1]
         self.dx = self.dy = self.vel_y = 0
-            
+        self.action = 0 # 0:idle | 1:run | 2:jump | 3:attack1 | 4:attack2 | 5:hit | 6:death 
+        self.frame_index = 0
+        self.steps = []
 
         if config: 
-           self.speed, self.jumpVal, self.gravity, self.health = readConfigJSON(config)
+           self.speed, self.jumpVal, self.gravity, self.health, self.scale, self.imgSize, self.imgoffset = readConfigJSON(config)
         else:
             self.speed        = 3
             self.jumpVal      = 6
             self.gravity      = 1
             self.health       = 100
+            self.imgSize      = 162 
+            self.scale        = 3
+            self.imgoffset    = (50,50)
         
+        if img:
+            self.old_img = self.img
 
+        self.flip = False
         self.jump = False
         self.isAttacking = False
 
+        self.anim_list = []
 
         self.WIDTH  = size[0]
         self.HEIGHT = size[1]
 
+        
         self.rect = pg.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
 
         fighter._fighterList.append(self)
 
-    def draw(self, screen: screen, scale=True, coord=(0,0)):
+    def draw(self, screen: screen, scale=False, coord=(0,0)):
         """Draw the fighter to the game screen [Overwirtes the object function]
 
         Args:
@@ -55,13 +65,50 @@ class fighter(object):
         """
 
         if self.img == "": pg.draw.rect(screen.SCREEN, (255,0,0), self.rect)
-        else: super().draw(screen, scale, coord)
+        else: 
+            if not self.anim_list:
+                for y, animation in enumerate(self.steps):
+                    _img_list = []
+                    for x in range(animation):
+                        temp_img = self.img.subsurface(x * self.imgSize, y * self.imgSize, self.imgSize, self.imgSize)
+                        _img_list.append(pg.transform.scale(temp_img, (self.imgSize * self.scale, self.imgSize * self.scale)))
+                    self.anim_list.append(_img_list)
+
+            self.img = self.anim_list[self.action][self.frame_index]
+            self.rect = self.img.get_rect()
+            
+            super().draw(screen, scale, coord)
 
         self.rect.x += self.dx
         self.rect.y += self.dy
 
+    def GenSteps(self, *values:int):
+        if len(values) < 8:
+            self.steps = []
+            for v in values:
+                self.steps.append(v)
+        else:
+            print('too many step notations or invalid step notation, clearing image to avoid crash')
+            self.img = ''
+
+    def GenImages(self):
+        if not self.anim_list:
+            for y, animation in enumerate(self.steps):
+                _img_list = []
+                for x in range(animation):
+                    temp_img = self.img.subsurface(x * self.imgSize, y * self.imgSize, self.imgSize, self.imgSize)
+                    _img_list.append(temp_img)
+                self.anim_list.append(_img_list)
+            
+
+    def flipEx(self, target) -> None:
+        if target.rect.centerx > self.rect.centerx:
+            self.flip = False
+        else:
+            self.flip = True
+
     def drawAtk(self, screen:screen, target):
-        self.atkRect = pg.Rect(self.rect.centerx, self.rect.y, 2 * self.rect.width, self.rect.height)
+        self.atkRect = pg.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
 
         if self.atkRect.colliderect(target.rect):
             color = (255,0,0)
@@ -132,7 +179,10 @@ def readConfigJSON(config):
         jump    = int(data["jump"])
         gravity = int(data["gravity"])
         health  = int(data["health"])
+        scale   = int(data["scale"])
+        size    = int(data["size"])
+        offset  = tuple(data["offset"])
 
-    print(f"s: {speed} j: {jump} g: {gravity}")
+    # print(f"s: {speed} j: {jump} g: {gravity} s")
 
-    return speed, jump, gravity, health
+    return speed, jump, gravity, health, scale, size, offset

@@ -2,5 +2,8 @@
     "speed"  : 5,
     "jump"   : 6,
     "gravity": 1,
-    "health" : 100
+    "health" : 100,
+    "scale"  : 4,
+    "size"   : 162,
+    "offset" : [50,50]
 }
